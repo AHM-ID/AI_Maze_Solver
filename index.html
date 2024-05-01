@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="./css/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="./css/bootstrap-icons.css" />
+    <link rel="stylesheet" href="./css/main.css" />
+    <title>Maze Solver with A*, DFS, BFS</title>
+</head>
+<body>
+    <main>
+        <div class="container mt-3">
+            <div class="d-flex justify-content-center text-center mb-1">
+                <h1>Maze Solver</h1>
+            </div>
+            <div class="d-flex row mb-1">
+                <button class="btn btn-outline-dark col me-1" id="generate-maze">
+                    <span><i class="bi bi-bounding-box me-1"></i></span> Generate Maze
+                </button>
+                <select class="form-select col me-1" id="algorithm">
+                    <option value="nothing">Choose Algorithm</option>
+                    <option value="astar">A*</option>
+                    <option value="dfs">Depth-First Search</option>
+                    <option value="bfs">Breadth-First Search</option>
+                </select>
+                <button class="btn btn-outline-dark col me-1" id="solve-maze">
+                    <span><i class="bi bi-check-circle me-1"></i></span> Solve Maze
+                </button>
+                <button class="btn btn-outline-dark col me-1" id="clear">
+                    <span><i class="bi bi-arrow-repeat me-1"></i></span> Clear Maze
+                </button>
+                <button class="btn btn-outline-dark col me-1" id="points">
+                    <span><i class="bi bi-dice-5 me-1"></i></span> Random Points
+                </button>
+            </div>
+            <div class="d-flex row mb-4 mt-4">
+                <span class="info col">Nodes Opened: <span id="nodes-opened"></span></span>
+                <span class="info col">Solution Path Length: <span id="path-length"></span></span>
+                <span class="info col">Time: <span id="time"></span></span>
+            </div>
+            <div class="d-flex justify-content-center mb-2">
+                <canvas id="maze-canvas" width="900" height="600"></canvas>
+            </div>
+            <div class="d-flex row justify-content-center mb-2">
+                <div class="mx-2 col-3">
+                    <label class="form-label">Chart Type</label>
+                    <select class="form-select col me-1" id="type" onchange="updateChartType()">
+                        <option value="bar" selected>Bar</option>
+                        <option value="doughnut">Donut</option>
+                    </select>
+                </div>
+                <div>
+                    <canvas id="chart" width="900" height="600"></canvas>
+                </div>
+            </div>
+            <div class="d-flex row mb-1">
+                <button class="btn btn-outline-dark col me-1" onclick="changeConfig(1)" id="run">
+                    <span><i class="bi bi-body-text me-1"></i></span> Runtime Chart
+                </button>
+                <button class="btn btn-outline-dark col me-1" onclick="changeConfig(2)" id="open">
+                    <span><i class="bi bi-body-text me-1"></i></span> Open Nodes Chart
+                </button>
+                <button class="btn btn-outline-dark col me-1" onclick="changeConfig(3)" id="path">
+                    <span><i class="bi bi-body-text me-1"></i></span> Final Path Chart
+                </button>
+                <button class="btn btn-outline-dark col me-1" onclick="download()" id="download">
+                    <span><i class="bi bi-save me-1"></i></span> Download Chart
+                </button>
+            </div>
+        </div>
+    </main>
+    <script src="./css/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="./js/chart.js/chart.umd.js"></script>
+    <script src="./js/scripts.js"></script>
+    <script src="./js/FileSaver.js/dist/FileSaver.min.js"></script>
+    <script src="./js/canvas-toBlob.js/canvas-toBlob.js"></script>
+</body>
+</html>
