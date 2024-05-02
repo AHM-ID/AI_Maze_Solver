@@ -3,15 +3,17 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" sizes="96x96" href="./images/favicon.png">
     <link rel="stylesheet" href="./css/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="./css/bootstrap-icons.css" />
     <link rel="stylesheet" href="./css/main.css" />
-    <title>Maze Solver with A*, DFS, BFS</title>
+    <title>Maze Solver</title>
 </head>
 <body>
     <main>
         <div class="container mt-3">
-            <div class="d-flex justify-content-center text-center mb-1">
+            <div class="d-flex justify-content-center row text-center mb-1">
+                <img src="./images/logo.png" id="logo" alt="logo"/>
                 <h1>Maze Solver</h1>
             </div>
             <div class="d-flex row mb-1">
@@ -22,6 +24,7 @@
                     <option value="nothing">Choose Algorithm</option>
                     <option value="astar">A*</option>
                     <option value="dfs">Depth-First Search</option>
+                    <option value="Idfs">Iterative Depth-First Search</option>
                     <option value="bfs">Breadth-First Search</option>
                 </select>
                 <button class="btn btn-outline-dark col me-1" id="solve-maze">
@@ -48,6 +51,9 @@
                     <select class="form-select col me-1" id="type" onchange="updateChartType()">
                         <option value="bar" selected>Bar</option>
                         <option value="doughnut">Donut</option>
+                        <option value="polarArea">Polar</option>
+                        <option value="radar">Radar</option>
+                        <option value="line">Line</option>
                     </select>
                 </div>
                 <div>
@@ -70,6 +76,104 @@
             </div>
         </div>
     </main>
+    <!-- Modal Start -->
+    <div class="modal fade" id="myModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-success text-light">
+                    <h5 class="modal-title" id="exampleModalLabel"><img src="./images/logo.png" id="banner"> Maze Solver</h5>
+                    <button type="button" class="btn-close bg-light" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body mx-0">
+                    <p class="text-center">
+                    Welcome To Path Finder Visualizer
+                    </p>
+                    <p class="text-center text-success">
+                        This service is designed for academic work
+                    </p>
+                    <p class="text-center text-success">
+                        Shahed University of Iran
+                    </p>
+                    <p class="text-center text-success">
+                        2024
+                    </p>
+                </div>
+                <div class="modal-footer justify-content-center">
+                    <button type="button" class="btn btn-success" data-bs-dismiss="modal">Go To Visualizer</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Successful Notify -->
+    <div class="modal fade" id="ModalSuc" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-success text-light">
+                    <h5 class="modal-title" id="exampleModalLabel"><img src="./images/logo.png" id="banner"> Maze Solver</h5>
+                    <button type="button" class="btn-close bg-light" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body mx-0">
+                    <p class="text-center">
+                    Here You Go !!!
+                    </p>
+                    <p class="text-center">
+                    The Path is fonded :)
+                    </p>
+                </div>
+                <div class="modal-footer justify-content-center">
+                    <button type="button" class="btn btn-success" data-bs-dismiss="modal">Go To Path</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Error -->
+    <div class="modal fade" id="ModalErr" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-warning text-dark">
+                    <h5 class="modal-title" id="exampleModalLabel"><img src="./images/logo.png" id="banner"> Maze Solver</h5>
+                    <button type="button" class="btn-close bg-light" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body mx-0">
+                    <p class="text-center">
+                    OOPS !!!
+                    </p>
+                    <p class="text-center">
+                    There is no path from start point to end point :(
+                    </p>
+                </div>
+                <div class="modal-footer justify-content-center text-dark">
+                    <button type="button" class="btn btn-warning" data-bs-dismiss="modal">Try Another Maze</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Info -->
+    <div class="modal fade" id="ModalInf" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-info text-dark">
+                    <h5 class="modal-title" id="exampleModalLabel"><img src="./images/logo.png" id="banner"> Maze Solver</h5>
+                    <button type="button" class="btn-close bg-light" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body mx-0">
+                    <p class="text-center">
+                    Sorry !!!
+                    </p>
+                    <p class="text-center">
+                    Please choose an algorithm then try again :)
+                    </p>
+                </div>
+                <div class="modal-footer justify-content-center text-dark">
+                    <button type="button" class="btn btn-info" data-bs-dismiss="modal">Let Me Choose</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="./css/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="./js/chart.js/chart.umd.js"></script>
     <script src="./js/scripts.js"></script>
