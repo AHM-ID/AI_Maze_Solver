@@ -48,6 +48,11 @@ main {
   padding: 10px 5px;
 }
 
+.custom-border {
+    border: 1px solid #343a40; /* Dark border color */
+    padding: 0.25rem; /* Adjust padding if needed */
+}
+
 #maze-canvas {
   border: 1px solid black;
   -webkit-border-radius: 125px;

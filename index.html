@@ -13,14 +13,14 @@
     <main>
         <div class="container mt-3">
             <div class="d-flex justify-content-center row text-center mb-1">
-                <img src="./images/logo.png" id="logo" alt="logo"/>
+                <img src="./images/logo.png" id="logo" alt="logo" />
                 <h1>Maze Solver</h1>
             </div>
             <div class="d-flex row mb-1">
                 <button class="btn btn-outline-dark col me-1" id="generate-maze">
                     <span><i class="bi bi-bounding-box me-1"></i></span> Generate Maze
                 </button>
-                <select class="form-select col me-1" id="algorithm">
+                <select class="form-select col me-1 custom-border" id="algorithm">
                     <option value="nothing">Choose Algorithm</option>
                     <option value="astar">A*</option>
                     <option value="dfs">Depth-First Search</option>
@@ -48,7 +48,7 @@
             <div class="d-flex row justify-content-center mb-2">
                 <div class="mx-2 col-3">
                     <label class="form-label">Chart Type</label>
-                    <select class="form-select col me-1" id="type" onchange="updateChartType()">
+                    <select class="form-select col me-1 custom-border" id="type" onchange="updateChartType()">
                         <option value="bar" selected>Bar</option>
                         <option value="doughnut">Donut</option>
                         <option value="polarArea">Polar</option>
@@ -73,6 +73,9 @@
                 <button class="btn btn-outline-dark col me-1" onclick="download()" id="download">
                     <span><i class="bi bi-save me-1"></i></span> Download Chart
                 </button>
+                <button class="btn btn-outline-dark col me-1" data-bs-toggle="modal" data-bs-target="#help">
+                    <span><i class="bi bi-question-circle"></i></span> Help
+                </button>
             </div>
         </div>
     </main>
@@ -81,12 +84,17 @@
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header bg-success text-light">
-                    <h5 class="modal-title" id="exampleModalLabel"><img src="./images/logo.png" id="banner"> Maze Solver</h5>
-                    <button type="button" class="btn-close bg-light" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <h5 class="modal-title" id="exampleModalLabel"><img src="./images/logo.png" id="banner"> Maze Solver
+                    </h5>
+                    <button type="button" class="btn-close bg-light" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
                 </div>
                 <div class="modal-body mx-0">
                     <p class="text-center">
-                    Welcome To Path Finder Visualizer
+                        Welcome to path finder visualizer
+                    </p>
+                    <p class="text-center">
+                        Please make sure your browser is in desktop mode
                     </p>
                     <p class="text-center text-success">
                         This service is designed for academic work
@@ -110,15 +118,17 @@
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header bg-success text-light">
-                    <h5 class="modal-title" id="exampleModalLabel"><img src="./images/logo.png" id="banner"> Maze Solver</h5>
-                    <button type="button" class="btn-close bg-light" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <h5 class="modal-title" id="exampleModalLabel"><img src="./images/logo.png" id="banner"> Maze Solver
+                    </h5>
+                    <button type="button" class="btn-close bg-light" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
                 </div>
                 <div class="modal-body mx-0">
                     <p class="text-center">
-                    Here You Go !!!
+                        Here You Go !!!
                     </p>
                     <p class="text-center">
-                    The Path is fonded :)
+                        The Path is fonded :)
                     </p>
                 </div>
                 <div class="modal-footer justify-content-center">
@@ -133,15 +143,17 @@
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header bg-warning text-dark">
-                    <h5 class="modal-title" id="exampleModalLabel"><img src="./images/logo.png" id="banner"> Maze Solver</h5>
-                    <button type="button" class="btn-close bg-light" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <h5 class="modal-title" id="exampleModalLabel"><img src="./images/logo.png" id="banner"> Maze Solver
+                    </h5>
+                    <button type="button" class="btn-close bg-light" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
                 </div>
                 <div class="modal-body mx-0">
                     <p class="text-center">
-                    OOPS !!!
+                        OOPS !!!
                     </p>
                     <p class="text-center">
-                    There is no path from start point to end point :(
+                        There is no path from start point to end point :(
                     </p>
                 </div>
                 <div class="modal-footer justify-content-center text-dark">
@@ -156,19 +168,63 @@
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header bg-info text-dark">
-                    <h5 class="modal-title" id="exampleModalLabel"><img src="./images/logo.png" id="banner"> Maze Solver</h5>
-                    <button type="button" class="btn-close bg-light" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <h5 class="modal-title" id="exampleModalLabel"><img src="./images/logo.png" id="banner"> Maze Solver
+                    </h5>
+                    <button type="button" class="btn-close bg-light" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
                 </div>
                 <div class="modal-body mx-0">
                     <p class="text-center">
-                    Sorry !!!
+                        Sorry !!!
                     </p>
                     <p class="text-center">
-                    Please choose an algorithm then try again :)
+                        Please choose an algorithm then try again :)
                     </p>
                 </div>
                 <div class="modal-footer justify-content-center text-dark">
                     <button type="button" class="btn btn-info" data-bs-dismiss="modal">Let Me Choose</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Help -->
+    <div class="modal fade" id="help" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header bg-secondary text-light">
+                    <h5 class="modal-title" id="exampleModalLabel"><img src="./images/logo.png" id="banner"> Maze Solver
+                    </h5>
+                    <button type="button" class="btn-close bg-light" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+                </div>
+                <div class="modal-body mx-0">
+                    <h5 class="text-secondary">Generate Maze</h5>
+                    <p>
+                        With clicking this button, you can generate a new maze. It will randomly select start and
+                        destination points, as well as wall blocks.
+                    </p>
+                    <h5 class="text-secondary">Solve Maze</h5>
+                    <p>
+                        By clicking this button, you can solve the maze and observe how your preferred algorithm works.
+                        If you want to watch the algorithm search again, you could click the "run again" button after
+                        the solving operation is done. Also, if you want to select another algorithm to compare them,
+                        you could select another algorithm and then click the "solve" button without changing the shape
+                        of the maze.
+                    </p>
+                    <h5 class="text-secondary">Clear Maze</h5>
+                    <p>
+                        If you want to clear the entire maze, you could click this button to shape the maze with wall
+                        blocks wherever you want. When you click any block in the canvas, the block represents a wall.
+                    </p>
+                    <h5 class="text-secondary">Random Points</h5>
+                    <p>
+                        First, clear the maze, then change the position of the start and destination points randomly.
+                    </p>
+                </div>
+                <div class="modal-footer justify-content-center text-dark">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><span><i
+                                class="bi bi-hand-thumbs-up me-1"></i></span> I Understand</button>
                 </div>
             </div>
         </div>
