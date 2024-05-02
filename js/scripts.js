@@ -351,6 +351,9 @@ function aStar(maze, startX, startY, destX, destY) {
             { x: currentNode.x - 1, y: currentNode.y } // Left
         ];
 
+        // Explore neighbors with lower f-scores first
+        neighbors.sort((a, b) => fScore[`${a.x},${a.y}`] - fScore[`${b.x},${b.y}`]);
+
         for (const neighbor of neighbors) {
             const { x, y } = neighbor;
 
@@ -389,7 +392,7 @@ function aStar(maze, startX, startY, destX, destY) {
 
 // A* heuristic function (Euclidean distance)
 function heuristic(x1, y1, x2, y2) {
-    return Math.floor(Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2)));
+    return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
 }
 
 // Iterative DFS algorithm to solve the maze
@@ -999,12 +1002,12 @@ drawMaze(Maze);
 // Array to store results for each algorithm
 const algorithmResults = {
     astar: [
-        [178, 209, 22],
-        [176, 189, 24],
-        [179, 210, 27],
+        [155, 187, 22],
+        [172, 178, 24],
+        [160, 189, 27],
         [154, 186, 20],
-        [115, 143, 24],
-        [274, 293, 29],
+        [115, 135, 24],
+        [246, 271, 29],
         [138, 137, 19],
         [226, 269, 29],
         [248, 267, 33],
