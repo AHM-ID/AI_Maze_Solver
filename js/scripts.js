@@ -6,19 +6,22 @@ const CELL_START = 3;
 const CELL_DESTINATION = 4;
 const FINAL_PATH = 5;
 
+
 // Canvas and context for visualization
 const mazeCanvas = document.getElementById('maze-canvas');
 const ctx = mazeCanvas.getContext('2d');
 
+
 // Maze dimensions (adjustable)
 const mazeWidth = 30;
 const mazeHeight = 20;
-
 // Cell size for drawing
 const cellSize = Math.min(mazeCanvas.width / mazeWidth, mazeCanvas.height / mazeHeight);
 
+
 // Tuple to store start and destination points
 let points = {};
+
 
 // Defaults
 let intervalVisited;
@@ -28,6 +31,8 @@ let elapsedTime;
 let visitCount = 1;
 // Initialize the counter array with the same dimensions as the maze using map
 let counter = new Array(mazeHeight).fill(0).map(() => new Array(mazeWidth).fill(0));
+
+
 
 // Generate a random maze with a random number of walls within a specified range
 function generateMaze() {
@@ -157,6 +162,8 @@ function drawMaze(maze, visitedNodes) {
         }
     }
 }
+
+
 
 // DFS algorithm to solve the maze
 function depthFirstSearch(maze, startX, startY, destX, destY) {
@@ -385,6 +392,55 @@ function heuristic(x1, y1, x2, y2) {
     return Math.floor(Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2)));
 }
 
+// Iterative DFS algorithm to solve the maze
+function iterativeDepthFirstSearch(maze, startX, startY, destX, destY) {
+    const stack = [];
+    const visited = new Array(mazeHeight).fill(null).map(() => new Array(mazeWidth).fill(false));
+    let visitedNodes = [];
+    const path = [];
+    stack.push({ x: startX, y: startY });
+    visited[startY][startX] = true; // Mark the start node as visited
+
+    // Define a delay function
+    const delay = (ms) => {
+        const start = Date.now();
+        while (Date.now() - start < ms);
+    };
+
+    while (stack.length > 0) {
+        const { x, y } = stack.pop();
+        visitedNodes.push({ x, y }); // Store visited nodes
+        path.push({ x, y }); // Store the path as we explore
+
+        if (x === destX && y === destY) {
+            return { path, visitedNodes }; // Found destination
+        }
+
+        // Explore neighbors in the order: down, right, up, left (reversed)
+        const neighbors = [
+            { x: x - 1, y: y },  // Left
+            { x: x, y: y + 1 }, // Down
+            { x: x + 1, y: y }, // Right
+            { x: x, y: y - 1 } // Up
+        ];
+
+        for (const neighbor of neighbors) {
+            const { x: nx, y: ny } = neighbor;
+            if (nx >= 0 && nx < mazeWidth && ny >= 0 && ny < mazeHeight && !visited[ny][nx] && maze[ny][nx] !== CELL_WALL) {
+                stack.push({ x: nx, y: ny });
+                visited[ny][nx] = true; // Mark neighbor as visited
+            }
+        }
+
+        // Introduce a delay of 1 milliseconds
+        delay(1);
+    }
+
+    return { path: null, visitedNodes }; // No path found
+}
+
+
+
 // Function to animate DFS traversal
 function animateDFS(maze, startX, startY, destX, destY, result) {
     const solveButton = document.getElementById('solve-maze');
@@ -421,16 +477,28 @@ function animateDFS(maze, startX, startY, destX, destY, result) {
                         nodesOpened.innerHTML = visitedNodes.length - 2;
 
                         const pathLength = document.getElementById('path-length');
-                        pathLength.innerHTML = path.length - 1;
+                        pathLength.innerHTML = path.length - 2;
 
                         const time = document.getElementById('time');
                         time.innerHTML = elapsedTime + 'ms';
 
-                        alert("Here You Go !!!");
+                        const modalStart = new bootstrap.Modal(document.getElementById('ModalSuc'));
+                        modalStart.show();
                     }
                 } else {
                     clearInterval(intervalPath);
-                    alert("There is not any way from start to reach the destination :(");
+
+                    const nodesOpened = document.getElementById('nodes-opened');
+                    nodesOpened.innerHTML = visitCount - 1;
+
+                    const pathLength = document.getElementById('path-length');
+                    pathLength.innerHTML = '-';
+
+                    const time = document.getElementById('time');
+                    time.innerHTML = elapsedTime + 'ms';
+
+                    const modalStart = new bootstrap.Modal(document.getElementById('ModalErr'));
+                    modalStart.show();
                 }
             }, 50); // Adjust animation speed for path
         }
@@ -474,16 +542,28 @@ function animateBFS(maze, startX, startY, destX, destY, result) {
                         nodesOpened.innerHTML = visitedNodes.length - 2;
 
                         const pathLength = document.getElementById('path-length');
-                        pathLength.innerHTML = path.length - 1;
+                        pathLength.innerHTML = path.length - 2;
 
                         const time = document.getElementById('time');
                         time.innerHTML = elapsedTime + 'ms';
 
-                        alert("Here You Go !!!");
+                        const modalStart = new bootstrap.Modal(document.getElementById('ModalSuc'));
+                        modalStart.show();
                     }
                 } else {
                     clearInterval(intervalPath);
-                    alert("There is not any way from start to reach the destination :(");
+
+                    const nodesOpened = document.getElementById('nodes-opened');
+                    nodesOpened.innerHTML = visitCount - 1;
+
+                    const pathLength = document.getElementById('path-length');
+                    pathLength.innerHTML = '-';
+
+                    const time = document.getElementById('time');
+                    time.innerHTML = elapsedTime + 'ms';
+
+                    const modalStart = new bootstrap.Modal(document.getElementById('ModalErr'));
+                    modalStart.show();
                 }
             }, 50); // Adjust animation speed for path
         }
@@ -523,24 +603,102 @@ function animateAStar(maze, startX, startY, destX, destY, result) {
                         solveButton.innerHTML = '<span><i class="bi bi-arrow-clockwise me-1"></i></span> Run Again';
 
                         const nodesOpened = document.getElementById('nodes-opened');
-                        nodesOpened.innerHTML = visitedNodes.length - 2;
+                        nodesOpened.innerHTML = visitedNodes.length - 3;
 
                         const pathLength = document.getElementById('path-length');
-                        pathLength.innerHTML = path.length - 1; // Adjust path length to exclude the destination node
+                        pathLength.innerHTML = path.length - 2;
 
                         const time = document.getElementById('time');
                         time.innerHTML = elapsedTime + 'ms';
 
-                        alert("Here You Go !!!");
+                        const modalStart = new bootstrap.Modal(document.getElementById('ModalSuc'));
+                        modalStart.show();
                     }
                 } else {
                     clearInterval(intervalPath);
-                    alert("There is not any way from start to reach the destination :(");
+
+                    const nodesOpened = document.getElementById('nodes-opened');
+                    nodesOpened.innerHTML = visitCount - 1;
+
+                    const pathLength = document.getElementById('path-length');
+                    pathLength.innerHTML = '-';
+
+                    const time = document.getElementById('time');
+                    time.innerHTML = elapsedTime + 'ms';
+
+                    const modalStart = new bootstrap.Modal(document.getElementById('ModalErr'));
+                    modalStart.show();
                 }
             }, 50); // Adjust animation speed for path
         }
     }, 100); // Adjust animation speed for visited nodes
 }
+
+// Function to animate iterative DFS traversal
+function animateIterativeDFS(maze, startX, startY, destX, destY, result) {
+    const solveButton = document.getElementById('solve-maze');
+    solveButton.setAttribute('disabled', 'true');
+
+    const path = result.path;
+    const visitedNodes = result.visitedNodes;
+    let index = 1;
+    intervalVisited = setInterval(() => {
+        if (index < visitedNodes.length - 1) {
+            const { x, y } = visitedNodes[index];
+            if (x !== startX || y !== startY) {
+                maze[y][x] = CELL_VISITED;
+                drawMaze(maze);
+            }
+            index++;
+        } else {
+            clearInterval(intervalVisited);
+            index = 1;
+            intervalPath = setInterval(() => {
+                if (path) {
+                    if (index < path.length - 1) {
+                        const { x, y } = path[index];
+                        maze[y][x] = FINAL_PATH;
+                        drawMaze(maze);
+                        index++;
+                    } else {
+                        clearInterval(intervalPath);
+                        const solveButton = document.getElementById('solve-maze');
+                        solveButton.removeAttribute('disabled'); // Remove the disabled attribute to enable the button
+                        solveButton.innerHTML = '<span><i class="bi bi-arrow-clockwise me-1"></i></span> Run Again';
+
+                        const nodesOpened = document.getElementById('nodes-opened');
+                        nodesOpened.innerHTML = visitedNodes.length - 2;
+
+                        const pathLength = document.getElementById('path-length');
+                        pathLength.innerHTML = path.length - 2;
+
+                        const time = document.getElementById('time');
+                        time.innerHTML = elapsedTime + 'ms';
+
+                        const modalStart = new bootstrap.Modal(document.getElementById('ModalSuc'));
+                        modalStart.show();
+                    }
+                } else {
+                    clearInterval(intervalPath);
+
+                    const nodesOpened = document.getElementById('nodes-opened');
+                    nodesOpened.innerHTML = visitCount - 1;
+
+                    const pathLength = document.getElementById('path-length');
+                    pathLength.innerHTML = '-';
+
+                    const time = document.getElementById('time');
+                    time.innerHTML = elapsedTime + 'ms';
+
+                    const modalStart = new bootstrap.Modal(document.getElementById('ModalErr'));
+                    modalStart.show();
+                }
+            }, 50); // Adjust animation speed for path
+        }
+    }, 100); // Adjust animation speed for visited nodes
+}
+
+
 
 // Function to solve maze using DFS
 function solveDFS() {
@@ -558,8 +716,9 @@ function solveDFS() {
     animateDFS(mazeCopy, startX, startY, destX, destY, result);
 
     console.log(`DFS execution time: ${elapsedTime} milliseconds`);
-    console.log(`DFS Nodes Opened: ${result.visitedNodes.length}`);
-    console.log(`DFS Path Length: ${result.path.length}`);
+    // Start Point Dest Point subtracted
+    console.log(`DFS Nodes Opened: ${result.visitedNodes.length - 2}`);
+    console.log(`DFS Path Length: ${result.path.length - 2}`);
 }
 
 // Event listener for "Solve Maze" button with BFS
@@ -578,8 +737,9 @@ function solveBFS() {
     animateBFS(mazeCopy, startX, startY, destX, destY, result);
 
     console.log(`BFS execution time: ${elapsedTime} milliseconds`);
-    console.log(`BFS Nodes Opened: ${result.visitedNodes.length}`);
-    console.log(`BFS Path Length: ${result.path.length}`);
+    // Start Point Dest Point subtracted
+    console.log(`BFS Nodes Opened: ${result.visitedNodes.length - 2}`);
+    console.log(`BFS Path Length: ${result.path.length - 2}`);
 }
 
 // Event listener for "Solve Maze" button with A*
@@ -598,8 +758,29 @@ function solveAStar() {
     animateAStar(mazeCopy, startX, startY, destX, destY, result);
 
     console.log(`A* execution time: ${elapsedTime} milliseconds`);
-    console.log(`A* Nodes Opened: ${result.visitedNodes.length}`);
-    console.log(`A* Path Length: ${result.path.length}`);
+    // Start Point Dest Point and the last point that we ensured couldn't accept path subtracted
+    console.log(`A* Nodes Opened: ${result.visitedNodes.length - 3}`); 
+    console.log(`A* Path Length: ${result.path.length - 2}`);
+}
+
+// Function to solve maze using Iterative DFS
+function solveIterativeDFS() {
+    const startTime = performance.now(); // Start the timer
+    const mazeCopy = JSON.parse(JSON.stringify(Maze)); // Copy maze to prevent modification
+    const startX = points.start.x;
+    const startY = points.start.y;
+    const destX = points.destination.x;
+    const destY = points.destination.y;
+
+    const result = iterativeDepthFirstSearch(mazeCopy, startX, startY, destX, destY);
+    const endTime = performance.now(); // Stop the timer
+    elapsedTime = endTime - startTime; // Calculate the elapsed time in milliseconds
+
+    animateIterativeDFS(mazeCopy, startX, startY, destX, destY, result);
+
+    console.log(`Iterative DFS execution time: ${elapsedTime} milliseconds`);
+    console.log(`Iterative DFS Nodes Opened: ${result.visitedNodes.length - 2}`);
+    console.log(`Iterative DFS Path Length: ${result.path.length - 2}`);
 }
 
 // Function to clear everything on canvas
@@ -675,6 +856,8 @@ function clearMaze() {
     drawMaze(Maze);
 }
 
+
+
 // Event listener for "Solve Maze" button
 const solveButton = document.getElementById('solve-maze');
 solveButton.addEventListener('click', function () {
@@ -699,6 +882,11 @@ solveButton.addEventListener('click', function () {
         solveBFS();
     } else if (selectedAlgorithm === 'astar') {
         solveAStar();
+    } else if (selectedAlgorithm === 'Idfs') {
+        solveIterativeDFS();
+    } else {
+        const modalStart = new bootstrap.Modal(document.getElementById('ModalInf'));
+        modalStart.show();
     }
 });
 
@@ -800,47 +988,63 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 });
 
+
+
 // Initially draw a maze
 Maze = generateMaze();
 drawMaze(Maze);
 
+
+
 // Array to store results for each algorithm
 const algorithmResults = {
     astar: [
-        [126, 157, 53],
-        [138, 174, 23],
-        [119, 151, 21],
-        [183, 224, 23],
-        [213, 242, 32],
-        [72, 108, 21],
-        [24, 62, 23],
-        [233, 265, 27],
-        [237, 263, 27],
-        [150, 186, 18]
+        [178, 209, 22],
+        [176, 189, 24],
+        [179, 210, 27],
+        [154, 186, 20],
+        [115, 143, 24],
+        [274, 293, 29],
+        [138, 137, 19],
+        [226, 269, 29],
+        [248, 267, 33],
+        [102, 122, 19]
     ],
     dfs: [
-        [339, 341, 341],
-        [252, 254, 254],
-        [636, 637, 637],
-        [395, 396, 396],
-        [118, 119, 119],
-        [317, 319, 319],
-        [77, 78, 78],
-        [125, 126, 126],
-        [32, 31, 31],
-        [77, 77, 77]
+        [427, 426, 426],
+        [542, 541, 541],
+        [54, 54, 54],
+        [358, 357, 357],
+        [297, 297, 297],
+        [35, 35, 35],
+        [183, 183, 180],
+        [88, 86, 86],
+        [73, 72, 72],
+        [22, 23, 23]
+    ],
+    Idfs: [
+        [280, 279, 279],
+        [314, 315, 315],
+        [51, 50, 50],
+        [284, 282, 282],
+        [236, 234, 234],
+        [35, 35, 35],
+        [131, 130, 130],
+        [67, 64, 64],
+        [64, 63, 63],
+        [24, 23, 23]
     ],
     bfs: [
-        [328, 330, 26],
-        [354, 354, 22],
-        [377, 379, 27],
-        [403, 404, 21],
-        [314, 314, 23],
-        [409, 409, 34],
-        [392, 394, 28],
-        [434, 436, 21],
-        [304, 303, 21],
-        [348, 347, 29]
+        [437, 437, 22],
+        [387, 386, 24],
+        [412, 412, 30],
+        [412, 409, 26],
+        [369, 368, 24],
+        [447, 444, 29],
+        [351, 351, 30],
+        [405, 403, 32],
+        [408, 398, 40],
+        [239, 236, 21]
     ]
 };
 
@@ -857,27 +1061,39 @@ const labels = [
     'Exec-10'
 ];
 
+
+
 function configPath(type) {
     let result;
-    if (type === 'bar') {
+    if (type === 'bar' || type === 'radar' || type === 'line') {
         const dataPath = {
             labels: labels,
             datasets: [
                 {
                     label: 'A*',
-                    data: algorithmResults.astar.map(result => result[0]),
+                    fill: true,
+                    data: algorithmResults.astar.map(result => result[2]),
                     backgroundColor: '#f67019',
                     borderRadius: 5,
                 },
                 {
                     label: 'DFS',
-                    data: algorithmResults.dfs.map(result => result[0]),
+                    fill: true,
+                    data: algorithmResults.dfs.map(result => result[2]),
                     backgroundColor: '#4dc9f6',
                     borderRadius: 5,
                 },
                 {
+                    label: 'IDFS',
+                    fill: true,
+                    data: algorithmResults.dfs.map(result => result[2]),
+                    backgroundColor: '#acc236',
+                    borderRadius: 5,
+                },
+                {
                     label: 'BFS',
-                    data: algorithmResults.bfs.map(result => result[0]),
+                    fill: true,
+                    data: algorithmResults.bfs.map(result => result[2]),
                     backgroundColor: '#f53794',
                     borderRadius: 5,
                 }
@@ -903,21 +1119,23 @@ function configPath(type) {
         };
     }
     else {
-        let totalRuntime = algorithmResults.astar.reduce((acc, curr) => acc + curr[0], 0) +
-            algorithmResults.dfs.reduce((acc, curr) => acc + curr[0], 0) +
-            algorithmResults.bfs.reduce((acc, curr) => acc + curr[0], 0);
+        let totalRuntime = algorithmResults.astar.reduce((acc, curr) => acc + curr[2], 0) +
+            algorithmResults.dfs.reduce((acc, curr) => acc + curr[2], 0) +
+            algorithmResults.Idfs.reduce((acc, curr) => acc + curr[2], 0) +
+            algorithmResults.bfs.reduce((acc, curr) => acc + curr[2], 0);
 
         let dataArr = [
-            algorithmResults.astar.reduce((acc, curr) => acc + curr[0], 0) / totalRuntime * 100,
-            algorithmResults.dfs.reduce((acc, curr) => acc + curr[0], 0) / totalRuntime * 100,
-            algorithmResults.bfs.reduce((acc, curr) => acc + curr[0], 0) / totalRuntime * 100
+            algorithmResults.astar.reduce((acc, curr) => acc + curr[2], 0) / totalRuntime * 100,
+            algorithmResults.dfs.reduce((acc, curr) => acc + curr[2], 0) / totalRuntime * 100,
+            algorithmResults.Idfs.reduce((acc, curr) => acc + curr[2], 0) / totalRuntime * 100,
+            algorithmResults.bfs.reduce((acc, curr) => acc + curr[2], 0) / totalRuntime * 100
         ];
 
         const dataPath = {
-            labels: ['A*', 'DFS', 'BFS'],
+            labels: ['A*', 'DFS', 'IDFS', 'BFS'],
             datasets: [{
                 data: dataArr,
-                backgroundColor: ['#f67019', '#4dc9f6', '#f53794']
+                backgroundColor: ['#f67019', '#4dc9f6', '#acc236', '#f53794']
             }]
         };
 
@@ -945,24 +1163,34 @@ function configPath(type) {
 
 function configNode(type) {
     let result;
-    if (type === 'bar') {
+    if (type === 'bar' || type === 'radar' || type === 'line') {
         const dataNode = {
             labels: labels,
             datasets: [
                 {
                     label: 'A*',
+                    fill: true,
                     data: algorithmResults.astar.map(result => result[1]),
                     backgroundColor: '#f67019',
                     borderRadius: 5,
                 },
                 {
                     label: 'DFS',
+                    fill: true,
                     data: algorithmResults.dfs.map(result => result[1]),
                     backgroundColor: '#4dc9f6',
                     borderRadius: 5,
                 },
                 {
+                    label: 'IDFS',
+                    fill: true,
+                    data: algorithmResults.dfs.map(result => result[1]),
+                    backgroundColor: '#acc236',
+                    borderRadius: 5,
+                },
+                {
                     label: 'BFS',
+                    fill: true,
                     data: algorithmResults.bfs.map(result => result[1]),
                     backgroundColor: '#f53794',
                     borderRadius: 5,
@@ -991,19 +1219,21 @@ function configNode(type) {
     else {
         let totalRuntime = algorithmResults.astar.reduce((acc, curr) => acc + curr[1], 0) +
             algorithmResults.dfs.reduce((acc, curr) => acc + curr[1], 0) +
+            algorithmResults.Idfs.reduce((acc, curr) => acc + curr[1], 0) +
             algorithmResults.bfs.reduce((acc, curr) => acc + curr[1], 0);
 
         let dataArr = [
             algorithmResults.astar.reduce((acc, curr) => acc + curr[1], 0) / totalRuntime * 100,
             algorithmResults.dfs.reduce((acc, curr) => acc + curr[1], 0) / totalRuntime * 100,
+            algorithmResults.Idfs.reduce((acc, curr) => acc + curr[1], 0) / totalRuntime * 100,
             algorithmResults.bfs.reduce((acc, curr) => acc + curr[1], 0) / totalRuntime * 100
         ];
 
         const dataNode = {
-            labels: ['A*', 'DFS', 'BFS'],
+            labels: ['A*', 'DFS', 'IDFS', 'BFS'],
             datasets: [{
                 data: dataArr,
-                backgroundColor: ['#f67019', '#4dc9f6', '#f53794']
+                backgroundColor: ['#f67019', '#4dc9f6', '#acc236', '#f53794']
             }]
         };
 
@@ -1031,25 +1261,35 @@ function configNode(type) {
 
 function configTime(type) {
     let result;
-    if (type === 'bar') {
+    if (type === 'bar' || type === 'radar' || type === 'line') {
         const dataTime = {
             labels: labels,
             datasets: [
                 {
                     label: 'A*',
-                    data: algorithmResults.astar.map(result => result[2]),
+                    fill: true,
+                    data: algorithmResults.astar.map(result => result[0]),
                     backgroundColor: '#f67019',
                     borderRadius: 5,
                 },
                 {
                     label: 'DFS',
-                    data: algorithmResults.dfs.map(result => result[2]),
+                    fill: true,
+                    data: algorithmResults.dfs.map(result => result[0]),
                     backgroundColor: '#4dc9f6',
                     borderRadius: 5,
                 },
                 {
+                    label: 'IDFS',
+                    fill: true,
+                    data: algorithmResults.dfs.map(result => result[0]),
+                    backgroundColor: '#acc236',
+                    borderRadius: 5,
+                },
+                {
                     label: 'BFS',
-                    data: algorithmResults.bfs.map(result => result[2]),
+                    fill: true,
+                    data: algorithmResults.bfs.map(result => result[0]),
                     backgroundColor: '#f53794',
                     borderRadius: 5,
                 }
@@ -1075,21 +1315,23 @@ function configTime(type) {
         };
     }
     else {
-        let totalRuntime = algorithmResults.astar.reduce((acc, curr) => acc + curr[2], 0) +
-            algorithmResults.dfs.reduce((acc, curr) => acc + curr[2], 0) +
-            algorithmResults.bfs.reduce((acc, curr) => acc + curr[2], 0);
+        let totalRuntime = algorithmResults.astar.reduce((acc, curr) => acc + curr[0], 0) +
+            algorithmResults.dfs.reduce((acc, curr) => acc + curr[0], 0) +
+            algorithmResults.Idfs.reduce((acc, curr) => acc + curr[0], 0) +
+            algorithmResults.bfs.reduce((acc, curr) => acc + curr[0], 0);
 
         let dataArr = [
-            algorithmResults.astar.reduce((acc, curr) => acc + curr[2], 0) / totalRuntime * 100,
-            algorithmResults.dfs.reduce((acc, curr) => acc + curr[2], 0) / totalRuntime * 100,
-            algorithmResults.bfs.reduce((acc, curr) => acc + curr[2], 0) / totalRuntime * 100
+            algorithmResults.astar.reduce((acc, curr) => acc + curr[0], 0) / totalRuntime * 100,
+            algorithmResults.dfs.reduce((acc, curr) => acc + curr[0], 0) / totalRuntime * 100,
+            algorithmResults.Idfs.reduce((acc, curr) => acc + curr[0], 0) / totalRuntime * 100,
+            algorithmResults.bfs.reduce((acc, curr) => acc + curr[0], 0) / totalRuntime * 100
         ];
 
         const dataTime = {
-            labels: ['A*', 'DFS', 'BFS'],
+            labels: ['A*', 'DFS', 'IDFS', 'BFS'],
             datasets: [{
                 data: dataArr,
-                backgroundColor: ['#f67019', '#4dc9f6', '#f53794']
+                backgroundColor: ['#f67019', '#4dc9f6', '#acc236', '#f53794']
             }]
         };
 
@@ -1115,13 +1357,17 @@ function configTime(type) {
     return result;
 }
 
+
+
 let myChart = null;
 let configType = null;
 
 document.addEventListener('DOMContentLoaded', function () {
     const ctx = document.getElementById('chart').getContext('2d');
     const typeSelect = document.getElementById('type');
+    const modalStart = new bootstrap.Modal(document.getElementById('myModal')); // Initialize Bootstrap modal
     myChart = new Chart(ctx, configTime(typeSelect.value));
+    modalStart.show();
 });
 
 // Function to update the chart type

@@ -1,7 +1,35 @@
+/*
+====================
+Fonts
+====================
+*/
+@font-face {
+  font-family: "Mooli";
+  src: url("../fonts/Mooli/Mooli-Regular.woff")
+      format("woff"),
+    url("../fonts/Mooli/Mooli-Regular.woff2")
+      format("woff2"),
+    url("../fonts/Mooli/Mooli-Regular.ttf")
+      format("truetype");
+}
+
+/*
+====================
+Variables
+====================
+*/
+:root {
+    --ff-primary: "Mooli", sans-serif;
+}
+
+/*
+====================
+Defaults
+====================
+*/
 body {
   caret-color: transparent;
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
-    Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+  font-family: var(--ff-primary);
   background-color: rgba(212, 215, 223, 0.782);
   display: flex;
   justify-content: center;
@@ -24,4 +52,14 @@ main {
   border: 1px solid black;
   -webkit-border-radius: 125px;
   border-radius: 20px;
+}
+
+#logo {
+  width: 100px;
+  height: 75px;
+}
+
+#banner {
+  width: 40px;
+  height: 40px;
 }
