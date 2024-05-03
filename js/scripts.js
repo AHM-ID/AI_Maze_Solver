@@ -752,7 +752,7 @@ function solveDFS() {
 
     const result = depthFirstSearch(mazeCopy, startX, startY, destX, destY);
     const endTime = performance.now(); // Stop the timer
-    elapsedTime = endTime - startTime; // Calculate the elapsed time in milliseconds
+    elapsedTime = Math.floor(endTime - startTime); // Calculate the elapsed time in milliseconds
 
     animateDFS(mazeCopy, startX, startY, destX, destY, result);
 
@@ -773,7 +773,7 @@ function solveBFS() {
 
     const result = breadthFirstSearch(mazeCopy, startX, startY, destX, destY);
     const endTime = performance.now(); // Stop the timer
-    elapsedTime = endTime - startTime; // Calculate the elapsed time in milliseconds
+    elapsedTime = Math.floor(endTime - startTime); // Calculate the elapsed time in milliseconds
 
     animateBFS(mazeCopy, startX, startY, destX, destY, result);
 
@@ -794,7 +794,7 @@ function solveAStar() {
 
     const result = aStar(mazeCopy, startX, startY, destX, destY);
     const endTime = performance.now(); // Stop the timer
-    elapsedTime = endTime - startTime; // Calculate the elapsed time in milliseconds
+    elapsedTime = Math.floor(endTime - startTime); // Calculate the elapsed time in milliseconds
 
     animateAStar(mazeCopy, startX, startY, destX, destY, result);
 
@@ -815,7 +815,7 @@ function solveIterativeDFS() {
 
     const result = iterativeDepthFirstSearch(mazeCopy, startX, startY, destX, destY);
     const endTime = performance.now(); // Stop the timer
-    elapsedTime = endTime - startTime; // Calculate the elapsed time in milliseconds
+    elapsedTime = Math.floor(endTime - startTime); // Calculate the elapsed time in milliseconds
 
     animateIterativeDFS(mazeCopy, startX, startY, destX, destY, result);
 
