@@ -1,3 +1,18 @@
+/*
+=============================================================================
+JavaScript File for Maze Solver Project
+Author: [Amirhossein Maleki]
+GitHub: http://github.com/AHM-ID
+Email: mr.amirhosseinmaleki@gmail.com
+Purpose: This JavaScript file is part of the Maze Solver project, developed by [Amirhossein Maleki]. 
+It provides functionality for generating, solving, and visualizing mazes using various algorithms.
+The project is intended for academic use and educational purposes.
+License: This JavaScript file, authored by [Amirhossein Maleki], is provided under the Apache License, Version 2.0.
+For more information, please refer to http://www.apache.org/licenses/LICENSE-2.0
+=============================================================================
+*/
+
+
 // Maze cell representation (wall/empty) and visited state
 const CELL_EMPTY = 0;
 const CELL_WALL = 1;
@@ -98,29 +113,52 @@ function drawMaze(maze, visitedNodes) {
                 ctx.strokeRect(x * cellSize, y * cellSize, cellSize, cellSize);
             }
             else {
-                ctx.strokeStyle = 'black';
+                ctx.strokeStyle = '#191825';
                 ctx.strokeRect(x * cellSize, y * cellSize, cellSize, cellSize);
             }
 
             if (maze[y][x] === CELL_WALL) {
-                ctx.fillStyle = 'black'; // Wall
+                ctx.fillStyle = '#191825'; // Wall
                 ctx.fillRect(x * cellSize, y * cellSize, cellSize, cellSize);
             } else if (x === points.start.x && y === points.start.y) {
                 ctx.fillStyle = 'white'; // Empty cell
                 ctx.fillRect(x * cellSize, y * cellSize, cellSize, cellSize);
 
-                ctx.fillStyle = 'lime'; // Start point
+                ctx.fillStyle = '#1C6758'; // Start point
                 ctx.beginPath();
                 ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
                 ctx.fill();
+
+                ctx.font = '10px Arial';
+                ctx.fillStyle = 'white';
+                // Calculate the width of the text
+                const textWidth = ctx.measureText('S').width;
+                // Calculate the x-coordinate to center the text horizontally within the cell
+                const textX = x * cellSize + (cellSize - textWidth) / 2;
+                // Calculate the y-coordinate to center the text vertically within the cell
+                const textY = y * cellSize + cellSize / 2 + 10 / 4;
+                // Draw the text
+                ctx.fillText('S', textX, textY);
+                
             } else if (x === points.destination.x && y === points.destination.y) {
                 ctx.fillStyle = 'white'; // Empty cell
                 ctx.fillRect(x * cellSize, y * cellSize, cellSize, cellSize);
 
-                ctx.fillStyle = 'red'; // Destination point
+                ctx.fillStyle = '#BE0000'; // Destination point
                 ctx.beginPath();
                 ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
                 ctx.fill();
+
+                ctx.font = '10px Arial';
+                ctx.fillStyle = 'white';
+                // Calculate the width of the text
+                const textWidth = ctx.measureText('D').width;
+                // Calculate the x-coordinate to center the text horizontally within the cell
+                const textX = x * cellSize + (cellSize - textWidth) / 2;
+                // Calculate the y-coordinate to center the text vertically within the cell
+                const textY = y * cellSize + cellSize / 2 + 10 / 4;
+                // Draw the text
+                ctx.fillText('D', textX, textY);
             } else if (maze[y][x] === CELL_VISITED) {
                 ctx.fillStyle = 'white'; // Empty cell
                 ctx.fillRect(x * cellSize, y * cellSize, cellSize, cellSize);
@@ -1097,7 +1135,7 @@ function configPath(type) {
                     label: 'BFS',
                     fill: true,
                     data: algorithmResults.bfs.map(result => result[2]),
-                    backgroundColor: '#f53794',
+                    backgroundColor: '#d800a6',
                     borderRadius: 5,
                 }
             ]
@@ -1138,7 +1176,7 @@ function configPath(type) {
             labels: ['A*', 'DFS', 'IDFS', 'BFS'],
             datasets: [{
                 data: dataArr,
-                backgroundColor: ['#f67019', '#4dc9f6', '#acc236', '#f53794']
+                backgroundColor: ['#f67019', '#4dc9f6', '#acc236', '#d800a6']
             }]
         };
 
@@ -1195,7 +1233,7 @@ function configNode(type) {
                     label: 'BFS',
                     fill: true,
                     data: algorithmResults.bfs.map(result => result[1]),
-                    backgroundColor: '#f53794',
+                    backgroundColor: '#d800a6',
                     borderRadius: 5,
                 }
             ]
@@ -1236,7 +1274,7 @@ function configNode(type) {
             labels: ['A*', 'DFS', 'IDFS', 'BFS'],
             datasets: [{
                 data: dataArr,
-                backgroundColor: ['#f67019', '#4dc9f6', '#acc236', '#f53794']
+                backgroundColor: ['#f67019', '#4dc9f6', '#acc236', '#d800a6']
             }]
         };
 
@@ -1293,7 +1331,7 @@ function configTime(type) {
                     label: 'BFS',
                     fill: true,
                     data: algorithmResults.bfs.map(result => result[0]),
-                    backgroundColor: '#f53794',
+                    backgroundColor: '#d800a6',
                     borderRadius: 5,
                 }
             ]
@@ -1334,7 +1372,7 @@ function configTime(type) {
             labels: ['A*', 'DFS', 'IDFS', 'BFS'],
             datasets: [{
                 data: dataArr,
-                backgroundColor: ['#f67019', '#4dc9f6', '#acc236', '#f53794']
+                backgroundColor: ['#f67019', '#4dc9f6', '#acc236', '#d800a6']
             }]
         };
 
@@ -1369,6 +1407,11 @@ document.addEventListener('DOMContentLoaded', function () {
     const ctx = document.getElementById('chart').getContext('2d');
     const typeSelect = document.getElementById('type');
     const modalStart = new bootstrap.Modal(document.getElementById('myModal')); // Initialize Bootstrap modal
+
+    // Set global default font for tooltips
+    Chart.defaults.font.family = "Mooli";
+    Chart.defaults.font.size = 14;
+    
     myChart = new Chart(ctx, configTime(typeSelect.value));
     modalStart.show();
 });
