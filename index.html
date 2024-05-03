@@ -1,7 +1,40 @@
+<!--
+=============================================================================
+    Maze Solver Project
+    Project is authored by [Amirhossein Maleki]
+    Github: https://github.com/AHM-ID
+    Email: mr.amirhosseinmaleki@gmail.com
+    
+    Purpose:
+    The Maze Solver project, developed by [Amirhossein Maleki]. 
+    This project aims to provide a visualizer and solver for mazes, allowing users to generate, 
+    solve, and analyze mazes using various algorithms. The project is intended for academic use 
+    and is designed for educational purposes.
+
+    License:
+    Copyright [2024] [Amirhossein Maleki]
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+=============================================================================
+-->
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Maze Solver is a visualizer and solver for mazes, allowing users to generate, solve, and analyze mazes using various algorithms. Developed by Amirhossein Maleki for academic use.">
+    <meta name="author" content="Amirhossein Maleki">
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="icon" type="image/png" sizes="96x96" href="./images/favicon.png">
     <link rel="stylesheet" href="./css/bootstrap/dist/css/bootstrap.min.css" />
@@ -11,12 +44,12 @@
 </head>
 <body>
     <main>
-        <div class="container mt-3">
-            <div class="d-flex justify-content-center row text-center mb-1">
+        <section class="container mt-3">
+            <div class="row justify-content-center text-center mb-1">
                 <img src="./images/logo.png" id="logo" alt="logo" />
                 <h1>Maze Solver</h1>
             </div>
-            <div class="d-flex row mb-1">
+            <div class="row mb-1">
                 <button class="btn btn-outline-dark col me-1" id="generate-maze">
                     <span><i class="bi bi-bounding-box me-1"></i></span> Generate Maze
                 </button>
@@ -37,7 +70,7 @@
                     <span><i class="bi bi-dice-5 me-1"></i></span> Random Points
                 </button>
             </div>
-            <div class="d-flex row mb-4 mt-4">
+            <div class="row mb-4 mt-4">
                 <span class="info col">Nodes Opened: <span id="nodes-opened"></span></span>
                 <span class="info col">Solution Path Length: <span id="path-length"></span></span>
                 <span class="info col">Time: <span id="time"></span></span>
@@ -45,7 +78,7 @@
             <div class="d-flex justify-content-center mb-2">
                 <canvas id="maze-canvas" width="900" height="600"></canvas>
             </div>
-            <div class="d-flex row justify-content-center mb-2">
+            <div class="row justify-content-center mb-2">
                 <div class="mx-2 col-3">
                     <label class="form-label">Chart Type</label>
                     <select class="form-select col me-1 custom-border" id="type" onchange="updateChartType()">
@@ -56,11 +89,11 @@
                         <option value="line">Line</option>
                     </select>
                 </div>
-                <div>
+                <div class="d-flex justify-content-center mb-2">
                     <canvas id="chart" width="900" height="600"></canvas>
                 </div>
             </div>
-            <div class="d-flex row mb-1">
+            <div class="row mb-1">
                 <button class="btn btn-outline-dark col me-1" onclick="changeConfig(1)" id="run">
                     <span><i class="bi bi-body-text me-1"></i></span> Runtime Chart
                 </button>
@@ -77,8 +110,9 @@
                     <span><i class="bi bi-question-circle"></i></span> Help
                 </button>
             </div>
-        </div>
+        </section>
     </main>
+
     <!-- Modal Start -->
     <div class="modal fade" id="myModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
