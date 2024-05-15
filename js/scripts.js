@@ -324,10 +324,37 @@ function breadthFirstSearch(maze, startX, startY, destX, destY) {
     return { path: null, visitedNodes };
 }
 
+// Priority order queue for A*
+class PriorityQueue {
+    constructor() {
+        this.elements = [];
+    }
+
+    enqueue(element, priority) {
+        this.elements.push({ element, priority });
+        this.sort();
+    }
+
+    dequeue() {
+        return this.elements.shift().element;
+    }
+
+    sort() {
+        this.elements.sort((a, b) => a.priority - b.priority);
+    }
+
+    isEmpty() {
+        return this.elements.length === 0;
+    }
+
+    contains(element) {
+        return this.elements.some(el => el.element.x === element.x && el.element.y === element.y);
+    }
+}
+
 // A* algorithm to solve the maze
 function aStar(maze, startX, startY, destX, destY) {
-    let openList = [{ x: startX, y: startY }];
-    let closedList = new Array(mazeHeight).fill(null).map(() => new Array(mazeWidth).fill(false));
+    const openList = new PriorityQueue();
     let cameFrom = {}; // To store the parent of each node
     let gScore = {}; // To store the cost from the start node to each node
     let fScore = {}; // To store the total estimated cost of the cheapest path from start to goal passing through the node
@@ -336,46 +363,14 @@ function aStar(maze, startX, startY, destX, destY) {
     // Initialize the scores for the start node
     gScore[`${startX},${startY}`] = 0;
     fScore[`${startX},${startY}`] = heuristic(startX, startY, destX, destY);
+    openList.enqueue({ x: startX, y: startY }, fScore[`${startX},${startY}`]);
 
-    let optimalPathFound = false;
-
-    while (openList.length > 0) {
-        // Find the node in openList with the lowest fScore
-        let minFScore = Infinity;
-        let currentNode = null;
-        let currentIndex = null;
-        for (let i = 0; i < openList.length; i++) {
-            const node = openList[i];
-            const nodeFScore = fScore[`${node.x},${node.y}`];
-            if (nodeFScore < minFScore) {
-                minFScore = nodeFScore;
-                currentNode = node;
-                currentIndex = i;
-            }
-        }
-
-        // If reached the destination, but not the optimal path, continue searching
-        if (currentNode.x === destX && currentNode.y === destY && !optimalPathFound) {
-            let path = [{ x: destX, y: destY }];
-            let current = { x: destX, y: destY };
-            while (`${current.x},${current.y}` in cameFrom) {
-                current = cameFrom[`${current.x},${current.y}`];
-                path.unshift(current);
-            }
-
-            // Check if the current path is the optimal path
-            if (fScore[`${destX},${destY}`] === minFScore) {
-                optimalPathFound = true;
-            } else {
-                // Continue searching
-                openList.splice(currentIndex, 1);
-                closedList[currentNode.y][currentNode.x] = true;
-                continue;
-            }
-        }
+    while (!openList.isEmpty()) {
+        const currentNode = openList.dequeue();
+        visitedNodes.push({ x: currentNode.x, y: currentNode.y });
 
         // If reached the destination and found the optimal path, return
-        if (currentNode.x === destX && currentNode.y === destY && optimalPathFound) {
+        if (currentNode.x === destX && currentNode.y === destY) {
             let path = [{ x: destX, y: destY }];
             let current = { x: destX, y: destY };
             while (`${current.x},${current.y}` in cameFrom) {
@@ -386,12 +381,6 @@ function aStar(maze, startX, startY, destX, destY) {
             return { path, visitedNodes };
         }
 
-        // Remove currentNode from openList
-        openList.splice(currentIndex, 1);
-
-        // Mark currentNode as visited
-        closedList[currentNode.y][currentNode.x] = true;
-
         // Explore neighbors
         const neighbors = [
             { x: currentNode.x, y: currentNode.y - 1 }, // Up
@@ -399,9 +388,6 @@ function aStar(maze, startX, startY, destX, destY) {
             { x: currentNode.x, y: currentNode.y + 1 }, // Down
             { x: currentNode.x - 1, y: currentNode.y } // Left
         ];
-
-        // Explore neighbors with lower f-scores first
-        neighbors.sort((a, b) => fScore[`${a.x},${a.y}`] - fScore[`${b.x},${b.y}`]);
 
         for (const neighbor of neighbors) {
             const { x, y } = neighbor;
@@ -412,20 +398,14 @@ function aStar(maze, startX, startY, destX, destY) {
                 let tentativeGScore = gScore[`${currentNode.x},${currentNode.y}`] + 1;
                 let tentativeFScore = tentativeGScore + heuristic(x, y, destX, destY);
 
-                if ((!fScore[`${x},${y}`] && tentativeFScore <= fScore[`${currentNode.x},${currentNode.y}`]) || tentativeFScore < fScore[`${x},${y}`]) {
+                if (!fScore[`${x},${y}`] || tentativeFScore < fScore[`${x},${y}`]) {
                     cameFrom[`${x},${y}`] = { x: currentNode.x, y: currentNode.y };
                     gScore[`${x},${y}`] = tentativeGScore;
                     fScore[`${x},${y}`] = tentativeFScore;
 
                     // Check if neighbor is already in openList
-                    if (!openList.some(node => node.x === x && node.y === y)) {
-                        openList.push({ x, y });
-                    }
-
-                    // Add neighbor to visited nodes if not already visited
-                    if (!closedList[y][x]) {
-                        visitedNodes.push({ x, y });
-                        closedList[y][x] = true;
+                    if (!openList.contains({ x, y })) {
+                        openList.enqueue({ x, y }, tentativeFScore);
                     }
                 }
             }
