@@ -167,11 +167,6 @@ function drawMaze(maze, visitedNodes) {
                 ctx.beginPath();
                 ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
                 ctx.fill();
-
-                if (counter[y][x] === 0) {
-                    counter[y][x] = visitCount;
-                    visitCount++;
-                }
             } else if (maze[y][x] === FINAL_PATH) {
                 ctx.fillStyle = 'white'; // Empty cell
                 ctx.fillRect(x * cellSize, y * cellSize, cellSize, cellSize);
@@ -180,6 +175,11 @@ function drawMaze(maze, visitedNodes) {
                 ctx.beginPath();
                 ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
                 ctx.fill();
+
+                if (counter[y][x] === 0) {
+                    counter[y][x] = visitCount;
+                    visitCount++;
+                }
             } else {
                 ctx.fillStyle = 'white'; // Empty cell
                 ctx.fillRect(x * cellSize, y * cellSize, cellSize, cellSize);
@@ -201,30 +201,47 @@ function drawMaze(maze, visitedNodes) {
     }
 }
 
+// Define an asynchronous delay function with milliseconds precision
+const delay = (ms) => {
+    return new Promise(resolve => {
+        let start = performance.now(); // Get the current time
+        const wait = () => {
+            if (performance.now() - start >= ms) {
+                resolve();
+            } else {
+                setTimeout(wait, 0.01); // Call wait function after 0.01 milliseconds
+            }
+        };
+        wait();
+    });
+};
+
 
 
 // DFS algorithm to solve the maze
 function depthFirstSearch(maze, startX, startY, destX, destY) {
     const stack = [];
     const visited = new Array(mazeHeight).fill(null).map(() => new Array(mazeWidth).fill(false));
+    const cameFrom = {};
     let visitedNodes = [];
-    const path = [];
-    stack.push({ x: startX, y: startY });
+    let finalPath = null;
 
-    // Define a delay function
-    const delay = (ms) => {
-        const start = Date.now();
-        while (Date.now() - start < ms);
-    };
+    stack.push({ x: startX, y: startY });
 
     while (stack.length > 0) {
         const { x, y } = stack.pop();
         visited[y][x] = true;
-        visitedNodes.push({ x, y }); // Store visited nodes
-        path.push({ x, y }); // Store the path as we explore
+        visitedNodes.push({ x, y });
 
         if (x === destX && y === destY) {
-            return { path, visitedNodes }; // Found destination
+            // Reconstruct the final path
+            finalPath = [];
+            let current = { x: destX, y: destY };
+            while (current) {
+                finalPath.unshift(current);
+                current = cameFrom[`${current.x},${current.y}`];
+            }
+            break;
         }
 
         // Explore neighbors in the order: down, right, up, left (reversed)
@@ -239,14 +256,19 @@ function depthFirstSearch(maze, startX, startY, destX, destY) {
             const { x: nx, y: ny } = neighbor;
             if (nx >= 0 && nx < mazeWidth && ny >= 0 && ny < mazeHeight && !visited[ny][nx] && maze[ny][nx] !== CELL_WALL) {
                 stack.push({ x: nx, y: ny });
+                cameFrom[`${nx},${ny}`] = { x, y }; // Record the path
             }
         }
 
         // Introduce a delay of 1 milliseconds
-        delay(1);
+        delay(0.01);
     }
 
-    return { path: null, visitedNodes }; // No path found
+    if (!finalPath) {
+        return { path: null, visitedNodes };
+    }
+
+    return { path: finalPath, visitedNodes };
 }
 
 // BFS algorithm to solve the maze
@@ -259,12 +281,6 @@ function breadthFirstSearch(maze, startX, startY, destX, destY) {
 
     queue.push({ x: startX, y: startY });
     visited[startY][startX] = true;
-
-    // Define a delay function
-    const delay = (ms) => {
-        const start = Date.now();
-        while (Date.now() - start < ms);
-    };
 
     while (queue.length > 0) {
         const currentNode = queue.shift();
@@ -299,8 +315,9 @@ function breadthFirstSearch(maze, startX, startY, destX, destY) {
             }
             return { path, visitedNodes };
         }
+
         // Introduce a delay of 1 milliseconds
-        delay(1);
+        delay(0.01);
     }
 
     // No path found
@@ -321,12 +338,6 @@ function aStar(maze, startX, startY, destX, destY) {
     fScore[`${startX},${startY}`] = heuristic(startX, startY, destX, destY);
 
     let optimalPathFound = false;
-
-    // Define a delay function
-    const delay = (ms) => {
-        const start = Date.now();
-        while (Date.now() - start < ms);
-    };
 
     while (openList.length > 0) {
         // Find the node in openList with the lowest fScore
@@ -410,74 +421,94 @@ function aStar(maze, startX, startY, destX, destY) {
                     if (!openList.some(node => node.x === x && node.y === y)) {
                         openList.push({ x, y });
                     }
-                }
 
-                // Add neighbor to visited nodes if not already visited
-                if (!closedList[y][x]) {
-                    visitedNodes.push({ x, y });
-                    closedList[y][x] = true;
+                    // Add neighbor to visited nodes if not already visited
+                    if (!closedList[y][x]) {
+                        visitedNodes.push({ x, y });
+                        closedList[y][x] = true;
+                    }
                 }
             }
         }
 
         // Introduce a delay of 1 milliseconds
-        delay(1);
+        delay(0.01);
     }
 
     // If no path found, return visitedNodes
     return { path: null, visitedNodes };
 }
 
-// A* heuristic function (Euclidean distance)
+// A* heuristic function (Manhattan distance)
 function heuristic(x1, y1, x2, y2) {
-    return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
+    return Math.abs(x2 - x1) + Math.abs(y2 - y1);
 }
 
-// Iterative DFS algorithm to solve the maze
-function iterativeDepthFirstSearch(maze, startX, startY, destX, destY) {
-    const stack = [];
-    const visited = new Array(mazeHeight).fill(null).map(() => new Array(mazeWidth).fill(false));
+// Iterative Deepening Depth-First Search (IDDFS) algorithm to solve the maze
+function iterativeDeepeningDFS(maze, startX, startY, destX, destY) {
     let visitedNodes = [];
-    const path = [];
-    stack.push({ x: startX, y: startY });
-    visited[startY][startX] = true; // Mark the start node as visited
+    let finalPath = null;
 
-    // Define a delay function
-    const delay = (ms) => {
-        const start = Date.now();
-        while (Date.now() - start < ms);
-    };
+    function DFS(startX, startY, destX, destY, depth) {
+        const stack = [];
+        const visited = new Array(mazeHeight).fill(null).map(() => new Array(mazeWidth).fill(false));
+        const cameFrom = {};
+        visitedNodes = [];
+        finalPath = null;
 
-    while (stack.length > 0) {
-        const { x, y } = stack.pop();
-        visitedNodes.push({ x, y }); // Store visited nodes
-        path.push({ x, y }); // Store the path as we explore
+        stack.push({ x: startX, y: startY });
 
-        if (x === destX && y === destY) {
-            return { path, visitedNodes }; // Found destination
-        }
+        while (stack.length > 0 && depth > 0) {
+            depth--;
 
-        // Explore neighbors in the order: down, right, up, left (reversed)
-        const neighbors = [
-            { x: x - 1, y: y },  // Left
-            { x: x, y: y + 1 }, // Down
-            { x: x + 1, y: y }, // Right
-            { x: x, y: y - 1 } // Up
-        ];
+            const { x, y } = stack.pop();
+            visited[y][x] = true;
+            visitedNodes.push({ x, y });
 
-        for (const neighbor of neighbors) {
-            const { x: nx, y: ny } = neighbor;
-            if (nx >= 0 && nx < mazeWidth && ny >= 0 && ny < mazeHeight && !visited[ny][nx] && maze[ny][nx] !== CELL_WALL) {
-                stack.push({ x: nx, y: ny });
-                visited[ny][nx] = true; // Mark neighbor as visited
+            if (x === destX && y === destY) {
+                // Reconstruct the final path
+                finalPath = [];
+                let current = { x: destX, y: destY };
+                while (current) {
+                    finalPath.unshift(current);
+                    current = cameFrom[`${current.x},${current.y}`];
+                }
+
+                return true; // Return true if depth is reached
             }
+
+            // Explore neighbors in the order: down, right, up, left (reversed)
+            const neighbors = [
+                { x: x - 1, y: y },  // Left
+                { x: x, y: y + 1 }, // Down
+                { x: x + 1, y: y }, // Right
+                { x: x, y: y - 1 } // Up
+            ];
+
+            for (const neighbor of neighbors) {
+                const { x: nx, y: ny } = neighbor;
+                if (nx >= 0 && nx < mazeWidth && ny >= 0 && ny < mazeHeight && !visited[ny][nx] && maze[ny][nx] !== CELL_WALL) {
+                    stack.push({ x: nx, y: ny });
+                    cameFrom[`${nx},${ny}`] = { x, y }; // Record the path
+                }
+            }
+
+            // Introduce a delay of 1 milliseconds
+            delay(0.01);
         }
 
-        // Introduce a delay of 1 milliseconds
-        delay(1);
+        return false; // Return false if depth is reached and no path is found
     }
 
-    return { path: null, visitedNodes }; // No path found
+    // Perform iterative deepening DFS
+    const maxDepth = maze.length *  maze[0].length; // Maximum depth limit
+    for (let depth = 1; depth <= maxDepth; depth++) {
+        if (DFS(startX, startY, destX, destY, depth)) {
+            return { path: finalPath, visitedNodes };
+        }
+    }
+
+    return { path: null, visitedNodes };
 }
 
 
@@ -541,9 +572,9 @@ function animateDFS(maze, startX, startY, destX, destY, result) {
                     const modalStart = new bootstrap.Modal(document.getElementById('ModalErr'));
                     modalStart.show();
                 }
-            }, 50); // Adjust animation speed for path
+            }, 25); // Adjust animation speed for path
         }
-    }, 100); // Adjust animation speed for visited nodes
+    }, 50); // Adjust animation speed for visited nodes
 }
 
 // Function to animate BFS traversal
@@ -606,9 +637,9 @@ function animateBFS(maze, startX, startY, destX, destY, result) {
                     const modalStart = new bootstrap.Modal(document.getElementById('ModalErr'));
                     modalStart.show();
                 }
-            }, 50); // Adjust animation speed for path
+            }, 25); // Adjust animation speed for path
         }
-    }, 100); // Adjust animation speed for visited nodes
+    }, 50); // Adjust animation speed for visited nodes
 }
 
 // Function to animate A* traversal
@@ -670,13 +701,13 @@ function animateAStar(maze, startX, startY, destX, destY, result) {
                     const modalStart = new bootstrap.Modal(document.getElementById('ModalErr'));
                     modalStart.show();
                 }
-            }, 50); // Adjust animation speed for path
+            }, 25); // Adjust animation speed for path
         }
-    }, 100); // Adjust animation speed for visited nodes
+    }, 50); // Adjust animation speed for visited nodes
 }
 
 // Function to animate iterative DFS traversal
-function animateIterativeDFS(maze, startX, startY, destX, destY, result) {
+function animateIDDFS(maze, startX, startY, destX, destY, result) {
     const solveButton = document.getElementById('solve-maze');
     solveButton.setAttribute('disabled', 'true');
 
@@ -734,9 +765,9 @@ function animateIterativeDFS(maze, startX, startY, destX, destY, result) {
                     const modalStart = new bootstrap.Modal(document.getElementById('ModalErr'));
                     modalStart.show();
                 }
-            }, 50); // Adjust animation speed for path
+            }, 25); // Adjust animation speed for path
         }
-    }, 100); // Adjust animation speed for visited nodes
+    }, 50); // Adjust animation speed for visited nodes
 }
 
 
@@ -750,16 +781,22 @@ function solveDFS() {
     const destX = points.destination.x;
     const destY = points.destination.y;
 
+    $('.loader').fadeIn();
+    $('#preloader').fadeIn('slow');
+
     const result = depthFirstSearch(mazeCopy, startX, startY, destX, destY);
     const endTime = performance.now(); // Stop the timer
     elapsedTime = Math.floor(endTime - startTime); // Calculate the elapsed time in milliseconds
 
-    animateDFS(mazeCopy, startX, startY, destX, destY, result);
+    $('.loader').fadeOut();
+    $('#preloader').fadeOut('slow', function () {
+        animateDFS(mazeCopy, startX, startY, destX, destY, result);
+    });
 
     console.log(`DFS execution time: ${elapsedTime} milliseconds`);
     // Start Point Dest Point subtracted
     console.log(`DFS Nodes Opened: ${result.visitedNodes.length - 2}`);
-    console.log(`DFS Path Length: ${result.path.length - 2}`);
+    console.log(`DFS Path Length: ${result.path ? result.path.length - 2 : '-'}`);
 }
 
 // Event listener for "Solve Maze" button with BFS
@@ -771,16 +808,23 @@ function solveBFS() {
     const destX = points.destination.x;
     const destY = points.destination.y;
 
+    $('.loader').fadeIn();
+    $('#preloader').fadeIn('slow');
+
     const result = breadthFirstSearch(mazeCopy, startX, startY, destX, destY);
     const endTime = performance.now(); // Stop the timer
     elapsedTime = Math.floor(endTime - startTime); // Calculate the elapsed time in milliseconds
 
-    animateBFS(mazeCopy, startX, startY, destX, destY, result);
+    $('.loader').fadeOut();
+    $('#preloader').fadeOut('slow', function () {
+        animateBFS(mazeCopy, startX, startY, destX, destY, result);
+    });
+
 
     console.log(`BFS execution time: ${elapsedTime} milliseconds`);
     // Start Point Dest Point subtracted
     console.log(`BFS Nodes Opened: ${result.visitedNodes.length - 2}`);
-    console.log(`BFS Path Length: ${result.path.length - 2}`);
+    console.log(`BFS Path Length: ${result.path ? result.path.length - 2 : '-'}`);
 }
 
 // Event listener for "Solve Maze" button with A*
@@ -792,20 +836,26 @@ function solveAStar() {
     const destX = points.destination.x;
     const destY = points.destination.y;
 
+    $('.loader').fadeIn();
+    $('#preloader').fadeIn('slow');
+
     const result = aStar(mazeCopy, startX, startY, destX, destY);
     const endTime = performance.now(); // Stop the timer
     elapsedTime = Math.floor(endTime - startTime); // Calculate the elapsed time in milliseconds
 
-    animateAStar(mazeCopy, startX, startY, destX, destY, result);
+    $('.loader').fadeOut();
+    $('#preloader').fadeOut('slow', function () {
+        animateAStar(mazeCopy, startX, startY, destX, destY, result);
+    });
 
     console.log(`A* execution time: ${elapsedTime} milliseconds`);
     // Start Point Dest Point and the last point that we ensured couldn't accept path subtracted
     console.log(`A* Nodes Opened: ${result.visitedNodes.length - 3}`); 
-    console.log(`A* Path Length: ${result.path.length - 2}`);
+    console.log(`A* Path Length: ${result.path ? result.path.length - 2 : '-'}`);
 }
 
 // Function to solve maze using Iterative DFS
-function solveIterativeDFS() {
+function solveIDDFS() {
     const startTime = performance.now(); // Start the timer
     const mazeCopy = JSON.parse(JSON.stringify(Maze)); // Copy maze to prevent modification
     const startX = points.start.x;
@@ -813,15 +863,21 @@ function solveIterativeDFS() {
     const destX = points.destination.x;
     const destY = points.destination.y;
 
-    const result = iterativeDepthFirstSearch(mazeCopy, startX, startY, destX, destY);
+    $('.loader').fadeIn();
+    $('#preloader').fadeIn('slow');
+
+    const result = iterativeDeepeningDFS(mazeCopy, startX, startY, destX, destY);
     const endTime = performance.now(); // Stop the timer
     elapsedTime = Math.floor(endTime - startTime); // Calculate the elapsed time in milliseconds
 
-    animateIterativeDFS(mazeCopy, startX, startY, destX, destY, result);
+    $('.loader').fadeOut();
+    $('#preloader').fadeOut('slow', function () {
+        animateIDDFS(mazeCopy, startX, startY, destX, destY, result);
+    });
 
     console.log(`Iterative DFS execution time: ${elapsedTime} milliseconds`);
     console.log(`Iterative DFS Nodes Opened: ${result.visitedNodes.length - 2}`);
-    console.log(`Iterative DFS Path Length: ${result.path.length - 2}`);
+    console.log(`Iterative DFS Path Length: ${result.path ? result.path.length - 2 : '-'}`);
 }
 
 // Function to clear everything on canvas
@@ -924,7 +980,7 @@ solveButton.addEventListener('click', function () {
     } else if (selectedAlgorithm === 'astar') {
         solveAStar();
     } else if (selectedAlgorithm === 'Idfs') {
-        solveIterativeDFS();
+        solveIDDFS();
     } else {
         const modalStart = new bootstrap.Modal(document.getElementById('ModalInf'));
         modalStart.show();
@@ -957,6 +1013,8 @@ generateButton.addEventListener('click', function () {
 // Add event listener to the maze canvas
 mazeCanvas.addEventListener('click', function (event) {
     clearMaze();
+    let selectedAction = document.getElementById('action').value;
+
     // Calculate the cell coordinates based on the click position
     const rect = mazeCanvas.getBoundingClientRect();
     const mouseX = event.clientX - rect.left;
@@ -964,12 +1022,34 @@ mazeCanvas.addEventListener('click', function (event) {
     const cellX = Math.floor(mouseX / cellSize);
     const cellY = Math.floor(mouseY / cellSize);
 
-    // Check if the clicked cell is an empty cell
-    if (Maze[cellY][cellX] === CELL_EMPTY) {
-        // Change the state of the cell to a wall
-        Maze[cellY][cellX] = CELL_WALL;
+    // Check if the clicked cell is an empty cell and not already a point
+    if (Maze[cellY][cellX] === CELL_EMPTY &&
+        (points.start.x !== cellX || points.start.y !== cellY) &&
+        (points.destination.x !== cellX || points.destination.y !== cellY)) {
+        switch (selectedAction) {
+            case "wall":
+                Maze[cellY][cellX] = CELL_WALL;
+                break;
+            case "source":
+                // Update points object with start point coordinates
+                points.start.x = cellX;
+                points.start.y = cellY;
+                break;
+            case "destination":
+                // Update points object with destination point coordinates
+                points.destination.x = cellX;
+                points.destination.y = cellY;
+                break;
+        }
         // Redraw the maze to reflect the updated state
         drawMaze(Maze);
+    } else {
+        // Provide feedback to the user if attempting to place on a point or wall
+        if (Maze[cellY][cellX] === CELL_WALL) {
+            alert("You cannot place a point on a wall!");
+        } else {
+            alert("You cannot place points on top of each other!");
+        }
     }
 });
 
@@ -1027,8 +1107,15 @@ document.addEventListener('DOMContentLoaded', function () {
         // Enable solve button if an algorithm is selected
         solveButton.disabled = algorithmSelect.value === 'nothing';
     });
+
+    $('.loader').fadeOut();
+    $('#preloader').delay(100).fadeOut('slow');
 });
 
+document.addEventListener('onload', function () {
+    $('.loader').fadeIn();
+    $('#preloader').fadeIn('slow');
+});
 
 
 // Initially draw a maze
@@ -1040,52 +1127,52 @@ drawMaze(Maze);
 // Array to store results for each algorithm
 const algorithmResults = {
     astar: [
-        [155, 187, 22],
-        [172, 178, 24],
-        [160, 189, 27],
-        [154, 186, 20],
-        [115, 135, 24],
-        [246, 271, 29],
-        [138, 137, 19],
-        [226, 269, 29],
-        [248, 267, 33],
-        [102, 122, 19]
+        [10, 105, 27],
+        [5, 121, 20],
+        [6, 113, 19],
+        [4, 137, 20],
+        [13, 112, 23],
+        [5, 92, 29],
+        [10, 101, 28],
+        [4, 25, 21],
+        [6, 128, 22],
+        [11, 146, 21]
     ],
     dfs: [
-        [427, 426, 426],
-        [542, 541, 541],
-        [54, 54, 54],
-        [358, 357, 357],
-        [297, 297, 297],
-        [35, 35, 35],
-        [183, 183, 180],
-        [88, 86, 86],
-        [73, 72, 72],
-        [22, 23, 23]
+        [13, 433, 331],
+        [4, 230, 206],
+        [6, 256, 209],
+        [15, 587, 206],
+        [7, 349, 293],
+        [14, 311, 275],
+        [4, 131, 122],
+        [1, 27, 27],
+        [7, 344, 304],
+        [3, 81, 73]
     ],
     Idfs: [
-        [280, 279, 279],
-        [314, 315, 315],
-        [51, 50, 50],
-        [284, 282, 282],
-        [236, 234, 234],
-        [35, 35, 35],
-        [131, 130, 130],
-        [67, 64, 64],
-        [64, 63, 63],
-        [24, 23, 23]
+        [1156, 433, 331],
+        [337, 230, 206],
+        [341, 256, 209],
+        [2072, 587, 206],
+        [608, 349, 293],
+        [677, 311, 275],
+        [110, 131, 122],
+        [10, 27, 27],
+        [722, 344, 304],
+        [50, 81, 73]
     ],
     bfs: [
-        [437, 437, 22],
-        [387, 386, 24],
-        [412, 412, 30],
-        [412, 409, 26],
-        [369, 368, 24],
-        [447, 444, 29],
-        [351, 351, 30],
-        [405, 403, 32],
-        [408, 398, 40],
-        [239, 236, 21]
+        [11, 375, 27],
+        [4, 253, 20],
+        [7, 284, 19],
+        [6, 277, 20],
+        [7, 354, 23],
+        [7, 355, 29],
+        [9, 395, 28],
+        [10, 407, 21],
+        [5, 386, 22],
+        [9, 413, 21]
     ]
 };
 
@@ -1114,28 +1201,28 @@ function configPath(type) {
                     label: 'A*',
                     fill: true,
                     data: algorithmResults.astar.map(result => result[2]),
-                    backgroundColor: '#f67019',
+                    backgroundColor: '#6610f2',
                     borderRadius: 5,
                 },
                 {
                     label: 'DFS',
                     fill: true,
                     data: algorithmResults.dfs.map(result => result[2]),
-                    backgroundColor: '#4dc9f6',
+                    backgroundColor: '#fd7e14',
                     borderRadius: 5,
                 },
                 {
                     label: 'IDFS',
                     fill: true,
                     data: algorithmResults.dfs.map(result => result[2]),
-                    backgroundColor: '#acc236',
+                    backgroundColor: '#20c997',
                     borderRadius: 5,
                 },
                 {
                     label: 'BFS',
                     fill: true,
                     data: algorithmResults.bfs.map(result => result[2]),
-                    backgroundColor: '#d800a6',
+                    backgroundColor: '#ffc107',
                     borderRadius: 5,
                 }
             ]
@@ -1176,7 +1263,7 @@ function configPath(type) {
             labels: ['A*', 'DFS', 'IDFS', 'BFS'],
             datasets: [{
                 data: dataArr,
-                backgroundColor: ['#f67019', '#4dc9f6', '#acc236', '#d800a6']
+                backgroundColor: ['#6610f2', '#fd7e14', '#20c997', '#ffc107']
             }]
         };
 
@@ -1212,28 +1299,28 @@ function configNode(type) {
                     label: 'A*',
                     fill: true,
                     data: algorithmResults.astar.map(result => result[1]),
-                    backgroundColor: '#f67019',
+                    backgroundColor: '#6610f2',
                     borderRadius: 5,
                 },
                 {
                     label: 'DFS',
                     fill: true,
                     data: algorithmResults.dfs.map(result => result[1]),
-                    backgroundColor: '#4dc9f6',
+                    backgroundColor: '#fd7e14',
                     borderRadius: 5,
                 },
                 {
                     label: 'IDFS',
                     fill: true,
                     data: algorithmResults.dfs.map(result => result[1]),
-                    backgroundColor: '#acc236',
+                    backgroundColor: '#20c997',
                     borderRadius: 5,
                 },
                 {
                     label: 'BFS',
                     fill: true,
                     data: algorithmResults.bfs.map(result => result[1]),
-                    backgroundColor: '#d800a6',
+                    backgroundColor: '#ffc107',
                     borderRadius: 5,
                 }
             ]
@@ -1274,7 +1361,7 @@ function configNode(type) {
             labels: ['A*', 'DFS', 'IDFS', 'BFS'],
             datasets: [{
                 data: dataArr,
-                backgroundColor: ['#f67019', '#4dc9f6', '#acc236', '#d800a6']
+                backgroundColor: ['#6610f2', '#fd7e14', '#20c997', '#ffc107']
             }]
         };
 
@@ -1310,28 +1397,28 @@ function configTime(type) {
                     label: 'A*',
                     fill: true,
                     data: algorithmResults.astar.map(result => result[0]),
-                    backgroundColor: '#f67019',
+                    backgroundColor: '#6610f2',
                     borderRadius: 5,
                 },
                 {
                     label: 'DFS',
                     fill: true,
                     data: algorithmResults.dfs.map(result => result[0]),
-                    backgroundColor: '#4dc9f6',
+                    backgroundColor: '#fd7e14',
                     borderRadius: 5,
                 },
                 {
                     label: 'IDFS',
                     fill: true,
                     data: algorithmResults.dfs.map(result => result[0]),
-                    backgroundColor: '#acc236',
+                    backgroundColor: '#20c997',
                     borderRadius: 5,
                 },
                 {
                     label: 'BFS',
                     fill: true,
                     data: algorithmResults.bfs.map(result => result[0]),
-                    backgroundColor: '#d800a6',
+                    backgroundColor: '#ffc107',
                     borderRadius: 5,
                 }
             ]
@@ -1372,7 +1459,7 @@ function configTime(type) {
             labels: ['A*', 'DFS', 'IDFS', 'BFS'],
             datasets: [{
                 data: dataArr,
-                backgroundColor: ['#f67019', '#4dc9f6', '#acc236', '#d800a6']
+                backgroundColor: ['#6610f2', '#fd7e14', '#20c997', '#ffc107']
             }]
         };
 

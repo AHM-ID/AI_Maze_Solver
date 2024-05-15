@@ -30,10 +30,12 @@
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Maze Solver is a visualizer and solver for mazes, allowing users to generate, solve, and analyze mazes using various algorithms. Developed by Amirhossein Maleki for academic use.">
+    <meta name="description"
+        content="Maze Solver is a visualizer and solver for mazes, allowing users to generate, solve, and analyze mazes using various algorithms. Developed by Amirhossein Maleki for academic use.">
     <meta name="author" content="Amirhossein Maleki">
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="icon" type="image/png" sizes="96x96" href="./images/favicon.png">
@@ -42,7 +44,12 @@
     <link rel="stylesheet" href="./css/main.css" />
     <title>Maze Solver</title>
 </head>
+
 <body>
+    <!-- ======= Spinner ======= -->
+    <div id="preloader">
+        <div class="loader"></div>
+    </div>
     <main>
         <section class="container mt-3">
             <div class="row justify-content-center text-center mb-1">
@@ -59,6 +66,11 @@
                     <option value="dfs">Depth-First Search</option>
                     <option value="Idfs">Iterative Depth-First Search</option>
                     <option value="bfs">Breadth-First Search</option>
+                </select>
+                <select class="form-select col me-1 custom-border" id="action">
+                    <option value="wall">Put Wall</option>
+                    <option value="source">Put Source Point</option>
+                    <option value="destination">Put Destination Point</option>
                 </select>
                 <button class="btn btn-outline-dark col me-1" id="solve-maze">
                     <span><i class="bi bi-check-circle me-1"></i></span> Solve Maze
@@ -106,7 +118,7 @@
                 <button class="btn btn-outline-dark col me-1" onclick="download()" id="download">
                     <span><i class="bi bi-save me-1"></i></span> Download Chart
                 </button>
-                <button class="btn btn-outline-dark col me-1" data-bs-toggle="modal" data-bs-target="#help">
+                <button class="btn btn-outline-dark col me-1" data-bs-toggle="modal" data-bs-target="#help" id="btn-help">
                     <span><i class="bi bi-question-circle"></i></span> Help
                 </button>
             </div>
@@ -265,9 +277,11 @@
     </div>
 
     <script src="./css/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="./js/jquery/dist/jquery.min.js"></script>
     <script src="./js/chart.js/chart.umd.js"></script>
     <script src="./js/scripts.js"></script>
     <script src="./js/FileSaver.js/dist/FileSaver.min.js"></script>
     <script src="./js/canvas-toBlob.js/canvas-toBlob.js"></script>
 </body>
+
 </html>
