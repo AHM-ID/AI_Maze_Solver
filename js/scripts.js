@@ -412,7 +412,7 @@ function aStar(maze, startX, startY, destX, destY) {
                 let tentativeGScore = gScore[`${currentNode.x},${currentNode.y}`] + 1;
                 let tentativeFScore = tentativeGScore + heuristic(x, y, destX, destY);
 
-                if (!fScore[`${x},${y}`] || tentativeFScore < fScore[`${x},${y}`]) {
+                if ((!fScore[`${x},${y}`] && tentativeFScore <= fScore[`${currentNode.x},${currentNode.y}`]) || tentativeFScore < fScore[`${x},${y}`]) {
                     cameFrom[`${x},${y}`] = { x: currentNode.x, y: currentNode.y };
                     gScore[`${x},${y}`] = tentativeGScore;
                     fScore[`${x},${y}`] = tentativeFScore;
